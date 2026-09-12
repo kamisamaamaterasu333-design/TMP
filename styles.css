@@ -1,0 +1,350 @@
+/* TMP — Tommy Möller Partei
+   Farbwelt: Waldmeister-Grün auf Papier, Aktenordner-/Ledger-Anmutung,
+   Fließtext in Times New Roman (wie vorgegeben), Überschriften in Space Grotesk. */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root{
+  --waldmeister: #7CB93C;
+  --waldmeister-dunkel: #2F4A23;
+  --papier: #FAF8F3;
+  --papier-dunkel: #F1EEE5;
+  --tinte: #1C1C1A;
+  --tinte-hell: #55534C;
+  --linie: #D8D2C4;
+  --max-breite: 880px;
+}
+
+*{ box-sizing: border-box; }
+
+html{
+  scroll-behavior: smooth;
+}
+
+body{
+  margin: 0;
+  background: var(--papier);
+  color: var(--tinte);
+  font-family: "Times New Roman", Times, serif;
+  font-size: 19px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .wortmarke{
+  font-family: "Space Grotesk", "Arial Narrow", sans-serif;
+  font-weight: 600;
+  color: var(--tinte);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+a{
+  color: var(--waldmeister-dunkel);
+}
+
+a:focus-visible, button:focus-visible{
+  outline: 3px solid var(--waldmeister);
+  outline-offset: 2px;
+}
+
+.container{
+  max-width: var(--max-breite);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Header */
+.kopf{
+  border-bottom: 3px solid var(--tinte);
+  background: var(--papier);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.kopf .container{
+  max-width: 1040px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 18px;
+  padding-bottom: 18px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.wortmarke{
+  font-size: 26px;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.wortmarke .paragraf{
+  color: var(--waldmeister-dunkel);
+}
+
+.wortmarke small{
+  font-family: "Times New Roman", Times, serif;
+  font-weight: normal;
+  font-size: 14px;
+  color: var(--tinte-hell);
+  letter-spacing: 0;
+}
+
+nav.hauptnav ul{
+  list-style: none;
+  display: flex;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+nav.hauptnav a{
+  text-decoration: none;
+  color: var(--tinte);
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
+}
+
+nav.hauptnav a:hover,
+nav.hauptnav a[aria-current="page"]{
+  border-bottom: 2px solid var(--waldmeister);
+}
+
+/* Hero */
+.hero{
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 72px 24px 56px;
+}
+
+.hero .eyebrow{
+  color: var(--waldmeister-dunkel);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+
+.hero h1{
+  font-size: clamp(34px, 5vw, 54px);
+  max-width: 14ch;
+  margin: 0 0 22px;
+}
+
+.hero .lead{
+  max-width: 62ch;
+  font-size: 21px;
+  color: var(--tinte-hell);
+  margin: 0 0 30px;
+}
+
+.knopf{
+  display: inline-block;
+  background: var(--waldmeister-dunkel);
+  color: var(--papier);
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 13px 26px;
+  border: 2px solid var(--waldmeister-dunkel);
+}
+
+.knopf:hover{
+  background: var(--papier);
+  color: var(--waldmeister-dunkel);
+}
+
+.knopf.leer{
+  background: transparent;
+  color: var(--tinte);
+  border: 2px solid var(--tinte);
+  margin-left: 12px;
+}
+
+.knopf.leer:hover{
+  background: var(--tinte);
+  color: var(--papier);
+}
+
+/* Grundsätze — echte Aufzählung, daher Paragrafen-Nummerierung gerechtfertigt */
+.grundsaetze{
+  background: var(--papier-dunkel);
+  border-top: 1px solid var(--linie);
+  border-bottom: 1px solid var(--linie);
+  padding: 56px 0;
+}
+
+.grundsaetze h2{
+  font-size: 26px;
+  margin: 0 0 36px;
+}
+
+.grundsatz-liste{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.grundsatz-liste li{
+  border-left: 3px solid var(--waldmeister);
+  padding-left: 18px;
+}
+
+.grundsatz-liste .nr{
+  display: block;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--waldmeister-dunkel);
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.grundsatz-liste h3{
+  font-size: 20px;
+  margin: 0 0 8px;
+}
+
+.grundsatz-liste p{
+  color: var(--tinte-hell);
+  margin: 0;
+  font-size: 17px;
+}
+
+/* Allgemeine Sektionen */
+section.abschnitt{
+  max-width: var(--max-breite);
+  margin: 0 auto;
+  padding: 56px 24px;
+}
+
+section.abschnitt h2{
+  font-size: 28px;
+  margin: 0 0 20px;
+  border-bottom: 3px solid var(--waldmeister);
+  padding-bottom: 12px;
+  display: inline-block;
+}
+
+.hinweisfeld{
+  border: 1px solid var(--linie);
+  border-left: 4px solid var(--waldmeister-dunkel);
+  background: var(--papier-dunkel);
+  padding: 20px 24px;
+  margin: 28px 0;
+}
+
+.hinweisfeld p{ margin: 0; }
+
+/* Themenliste Programm */
+.themen{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--linie);
+  border: 1px solid var(--linie);
+  margin: 32px 0;
+}
+
+.themen article{
+  background: var(--papier);
+  padding: 26px 28px;
+}
+
+.themen h3{
+  font-size: 19px;
+  margin: 0 0 10px;
+}
+
+.themen p{
+  color: var(--tinte-hell);
+  margin: 0;
+  font-size: 17px;
+}
+
+/* Über-uns Profil */
+.profil{
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 36px;
+  align-items: start;
+  margin: 20px 0 40px;
+}
+
+.profil-marke{
+  width: 200px;
+  height: 200px;
+  background: var(--waldmeister-dunkel);
+  color: var(--papier);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 52px;
+  font-weight: 700;
+}
+
+/* Kontakt */
+.kontakt-liste{
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+  border-top: 1px solid var(--linie);
+}
+
+.kontakt-liste li{
+  display: flex;
+  gap: 18px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--linie);
+}
+
+.kontakt-liste .label{
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 500;
+  color: var(--tinte-hell);
+  min-width: 120px;
+  font-size: 15px;
+}
+
+/* Footer */
+footer.fuss{
+  border-top: 3px solid var(--tinte);
+  margin-top: 64px;
+  padding: 28px 0 40px;
+}
+
+footer.fuss .container{
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--tinte-hell);
+  font-family: "Space Grotesk", sans-serif;
+}
+
+/* Responsive */
+@media (max-width: 720px){
+  .grundsatz-liste{ grid-template-columns: 1fr; }
+  .themen{ grid-template-columns: 1fr; }
+  .profil{ grid-template-columns: 1fr; }
+  .profil-marke{ width: 100px; height: 100px; font-size: 30px; }
+  body{ font-size: 18px; }
+  .hero{ padding: 48px 20px 40px; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+}
