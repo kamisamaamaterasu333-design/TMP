@@ -1,8 +1,10 @@
 /* TMP — Tommy Möller Partei
    Farbwelt: Waldmeister-Grün auf Papier, Aktenordner-/Ledger-Anmutung,
-   Fließtext in Times New Roman (wie vorgegeben), Überschriften in Space Grotesk. */
-
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
+   Fließtext in Times New Roman (wie vorgegeben), Überschriften in einer
+   Systemschrift.
+   Hinweis: Bewusst KEINE Google Fonts oder andere externen Font-Requests,
+   damit beim Seitenaufruf keine Besucher-IP an Dritte übertragen wird
+   (siehe datenschutz.html). */
 
 :root{
   --waldmeister: #7CB93C;
@@ -32,8 +34,8 @@ body{
 }
 
 h1, h2, h3, .wortmarke{
-  font-family: "Space Grotesk", "Arial Narrow", sans-serif;
-  font-weight: 600;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
   color: var(--tinte);
   line-height: 1.15;
   letter-spacing: -0.01em;
@@ -107,7 +109,7 @@ nav.hauptnav ul{
 nav.hauptnav a{
   text-decoration: none;
   color: var(--tinte);
-  font-family: "Space Grotesk", sans-serif;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   font-weight: 500;
   font-size: 15px;
   padding-bottom: 4px;
@@ -128,7 +130,7 @@ nav.hauptnav a[aria-current="page"]{
 
 .hero .eyebrow{
   color: var(--waldmeister-dunkel);
-  font-family: "Space Grotesk", sans-serif;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   font-size: 15px;
   font-weight: 500;
   margin-bottom: 14px;
@@ -151,7 +153,7 @@ nav.hauptnav a[aria-current="page"]{
   display: inline-block;
   background: var(--waldmeister-dunkel);
   color: var(--papier);
-  font-family: "Space Grotesk", sans-serif;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   font-weight: 500;
   text-decoration: none;
   padding: 13px 26px;
@@ -204,7 +206,7 @@ nav.hauptnav a[aria-current="page"]{
 
 .grundsatz-liste .nr{
   display: block;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   color: var(--waldmeister-dunkel);
   font-weight: 600;
   font-size: 15px;
@@ -290,7 +292,7 @@ section.abschnitt h2{
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   font-size: 52px;
   font-weight: 700;
 }
@@ -311,7 +313,7 @@ section.abschnitt h2{
 }
 
 .kontakt-liste .label{
-  font-family: "Space Grotesk", sans-serif;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   font-weight: 500;
   color: var(--tinte-hell);
   min-width: 120px;
@@ -327,12 +329,37 @@ footer.fuss{
 
 footer.fuss .container{
   display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 15px;
+  color: var(--tinte-hell);
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+footer.fuss .fuss-zeile{
+  display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  font-size: 15px;
+}
+
+footer.fuss nav ul{
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+footer.fuss nav a{
   color: var(--tinte-hell);
-  font-family: "Space Grotesk", sans-serif;
+  text-decoration: none;
+}
+
+footer.fuss nav a:hover{
+  color: var(--waldmeister-dunkel);
+  text-decoration: underline;
 }
 
 /* Responsive */
@@ -347,4 +374,587 @@ footer.fuss .container{
 
 @media (prefers-reduced-motion: reduce){
   html{ scroll-behavior: auto; }
+}
+
+/* Aktuelles / Blog */
+.beitrag-liste{
+  list-style: none;
+  margin: 32px 0;
+  padding: 0;
+  display: grid;
+  gap: 24px;
+}
+
+.beitrag-karte{
+  border: 1px solid var(--linie);
+  border-left: 4px solid var(--waldmeister-dunkel);
+  background: var(--papier-dunkel);
+  padding: 24px 28px;
+}
+
+.beitrag-karte .datum{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  color: var(--waldmeister-dunkel);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.beitrag-karte h3{
+  margin: 0 0 10px;
+  font-size: 21px;
+}
+
+.beitrag-karte h3 a{
+  color: var(--tinte);
+  text-decoration: none;
+}
+
+.beitrag-karte h3 a:hover{
+  color: var(--waldmeister-dunkel);
+}
+
+.beitrag-karte p{
+  margin: 0 0 12px;
+  color: var(--tinte-hell);
+}
+
+.weiterlesen{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.beitrag-volltext{
+  max-width: 68ch;
+}
+
+.beitrag-volltext .datum{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  color: var(--waldmeister-dunkel);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.beitrag-volltext p{
+  margin: 0 0 18px;
+}
+
+.zurueck-link{
+  display: inline-block;
+  margin-top: 24px;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+}
+
+/* Shop */
+.produkt-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin: 32px 0;
+}
+
+.produkt-karte{
+  border: 1px solid var(--linie);
+  background: var(--papier);
+  display: flex;
+  flex-direction: column;
+}
+
+.produkt-bild{
+  height: 140px;
+  background: var(--papier-dunkel);
+  border-bottom: 1px solid var(--linie);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  color: var(--tinte-hell);
+}
+
+.produkt-info{
+  padding: 18px 20px 22px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.produkt-info h3{
+  font-size: 18px;
+  margin: 0 0 6px;
+}
+
+.produkt-info .preis{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  color: var(--waldmeister-dunkel);
+  margin: 0 0 10px;
+}
+
+.produkt-info p.beschreibung{
+  color: var(--tinte-hell);
+  font-size: 16px;
+  margin: 0 0 16px;
+  flex: 1;
+}
+
+.produkt-info a.knopf{
+  align-self: flex-start;
+  padding: 10px 18px;
+  font-size: 14px;
+}
+
+/* Rechtstexte (Impressum / Datenschutz) */
+.rechtstext h3{
+  font-size: 19px;
+  margin: 30px 0 10px;
+}
+
+.rechtstext p, .rechtstext li{
+  color: var(--tinte);
+}
+
+.rechtstext ul{
+  padding-left: 22px;
+}
+
+/* PDF-Download-Baustein (Eintrittsformular) */
+.download-karte{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border: 1px solid var(--linie);
+  border-left: 4px solid var(--waldmeister-dunkel);
+  background: var(--papier-dunkel);
+  padding: 22px 26px;
+  margin: 28px 0;
+  flex-wrap: wrap;
+}
+
+.download-karte .symbol{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  background: var(--waldmeister-dunkel);
+  color: var(--papier);
+  padding: 6px 10px;
+}
+
+.download-karte .info{
+  flex: 1;
+  min-width: 200px;
+}
+
+.download-karte .info strong{
+  display: block;
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+
+.download-karte .info span{
+  color: var(--tinte-hell);
+  font-size: 15px;
+}
+
+@media (max-width: 720px){
+  .produkt-grid{ grid-template-columns: 1fr; }
+}
+
+/* Lade-/Leerzustand für dynamische Inhalte */
+.lade-hinweis{
+  color: var(--tinte-hell);
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  padding: 20px 0;
+}
+
+/* Produktbild dynamisch geladen */
+.produkt-bild img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Mengenwahl + Warenkorb */
+.mengen-zeile{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.mengen-zeile label{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  color: var(--tinte-hell);
+}
+
+.mengen-zeile input[type="number"]{
+  width: 60px;
+  padding: 6px 8px;
+  border: 1px solid var(--linie);
+  background: var(--papier);
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+.warenkorb{
+  border: 2px solid var(--tinte);
+  background: var(--papier-dunkel);
+  padding: 24px 28px;
+  margin: 40px 0;
+}
+
+.warenkorb h3{
+  margin: 0 0 16px;
+  font-size: 21px;
+}
+
+.warenkorb-liste{
+  list-style: none;
+  padding: 0;
+  margin: 0 0 18px;
+  border-top: 1px solid var(--linie);
+}
+
+.warenkorb-liste li{
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--linie);
+  font-size: 16px;
+}
+
+.warenkorb-liste .entfernen{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  color: var(--tinte-hell);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.warenkorb-summe{
+  display: flex;
+  justify-content: space-between;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.bestellformular label{
+  display: block;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  color: var(--tinte-hell);
+  margin-bottom: 6px;
+}
+
+.bestellformular input[type="text"],
+.bestellformular input[type="email"]{
+  width: 100%;
+  max-width: 360px;
+  padding: 10px 12px;
+  border: 1px solid var(--linie);
+  background: var(--papier);
+  font-family: "Times New Roman", Times, serif;
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.bestellformular button{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  cursor: pointer;
+}
+
+.status-meldung{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  margin-top: 14px;
+}
+
+.status-meldung.erfolg{ color: var(--waldmeister-dunkel); }
+.status-meldung.fehler{ color: #A3392A; }
+
+/* Themen-Hauptpunkte (dynamisch) */
+.hauptpunkt-karte{
+  border: 1px solid var(--linie);
+  background: var(--papier);
+  display: flex;
+  flex-direction: column;
+}
+
+.hauptpunkt-bild{
+  height: 150px;
+  background: var(--papier-dunkel);
+  border-bottom: 1px solid var(--linie);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  color: var(--tinte-hell);
+}
+
+.hauptpunkt-bild img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hauptpunkt-info{
+  padding: 18px 20px 22px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.hauptpunkt-info h3{
+  font-size: 19px;
+  margin: 0 0 10px;
+}
+
+.hauptpunkt-info p{
+  color: var(--tinte-hell);
+  font-size: 16px;
+  flex: 1;
+  margin: 0 0 16px;
+}
+
+/* Artikel innerhalb eines Themen-Hauptpunkts */
+.artikel-karte{
+  border-left: 3px solid var(--waldmeister);
+  padding: 20px 0 20px 20px;
+  margin-bottom: 28px;
+}
+
+.artikel-karte h3{
+  font-size: 20px;
+  margin: 0 0 12px;
+}
+
+.artikel-karte img{
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 14px;
+  border: 1px solid var(--linie);
+}
+
+.artikel-karte .inhalt p{
+  margin: 0 0 14px;
+}
+
+/* Admin-Oberfläche */
+.admin-login{
+  max-width: 360px;
+  margin: 60px auto;
+  padding: 32px;
+  border: 2px solid var(--tinte);
+  background: var(--papier-dunkel);
+}
+
+.admin-login h2{
+  margin-top: 0;
+}
+
+.admin-login label{
+  display: block;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  color: var(--tinte-hell);
+  margin-bottom: 6px;
+}
+
+.admin-login input{
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--linie);
+  margin-bottom: 16px;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.admin-kopf{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.admin-tabs{
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid var(--tinte);
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.admin-tabs button{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  background: var(--papier-dunkel);
+  border: 1px solid var(--linie);
+  border-bottom: none;
+  padding: 10px 18px;
+  cursor: pointer;
+  color: var(--tinte);
+}
+
+.admin-tabs button.aktiv{
+  background: var(--tinte);
+  color: var(--papier);
+}
+
+.admin-panel{
+  display: none;
+}
+
+.admin-panel.aktiv{
+  display: block;
+}
+
+.admin-formular{
+  border: 1px solid var(--linie);
+  background: var(--papier-dunkel);
+  padding: 24px 26px;
+  margin-bottom: 32px;
+}
+
+.admin-formular h3{
+  margin-top: 0;
+}
+
+.admin-formular label{
+  display: block;
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  color: var(--tinte-hell);
+  margin: 14px 0 6px;
+}
+
+.admin-formular input[type="text"],
+.admin-formular input[type="number"],
+.admin-formular input[type="email"],
+.admin-formular textarea,
+.admin-formular select{
+  width: 100%;
+  max-width: 520px;
+  padding: 10px 12px;
+  border: 1px solid var(--linie);
+  background: var(--papier);
+  font-family: "Times New Roman", Times, serif;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.admin-formular textarea{
+  min-height: 120px;
+  font-family: "Times New Roman", Times, serif;
+}
+
+.admin-formular .feld-checkbox{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.admin-formular .feld-checkbox input{ width: auto; }
+
+.admin-formular .knopf-zeile{
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.admin-formular button{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  cursor: pointer;
+}
+
+.admin-liste{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-eintrag{
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  border: 1px solid var(--linie);
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  background: var(--papier);
+}
+
+.admin-eintrag img{
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border: 1px solid var(--linie);
+  flex-shrink: 0;
+}
+
+.admin-eintrag .details{
+  flex: 1;
+}
+
+.admin-eintrag .details strong{
+  display: block;
+  font-size: 16px;
+}
+
+.admin-eintrag .details span{
+  color: var(--tinte-hell);
+  font-size: 14px;
+}
+
+.admin-eintrag .aktionen{
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.admin-eintrag .aktionen button{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  padding: 6px 12px;
+  border: 1px solid var(--tinte);
+  background: var(--papier);
+  cursor: pointer;
+}
+
+.admin-eintrag .aktionen button.loeschen{
+  border-color: #A3392A;
+  color: #A3392A;
+}
+
+.admin-unterliste{
+  margin: 16px 0 0 20px;
+  padding-left: 20px;
+  border-left: 2px solid var(--linie);
+}
+
+.fuss-admin-link a{
+  font-size: 13px;
+  color: var(--linie);
+}
+
+@media (max-width: 720px){
+  .admin-eintrag{ flex-wrap: wrap; }
 }
