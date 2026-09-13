@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — TMP</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+</head>
+<body>
+
+<header class="kopf">
+  <div class="container">
+    <a class="wortmarke" href="index.html"><span class="paragraf">§</span> TMP <small>Tommy Möller Partei</small></a>
+    <nav class="hauptnav" aria-label="Hauptnavigation">
+      <ul>
+        <li><a href="index.html">Start</a></li>
+        <li><a href="themen.html">Themen</a></li>
+        <li><a href="aktuelles.html">Aktuelles</a></li>
+        <li><a href="shop.html">Shop</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="abschnitt" id="login-bereich">
+    <form class="admin-login" id="login-formular">
+      <h2>Admin-Login</h2>
+      <label for="login-email">E-Mail</label>
+      <input type="email" id="login-email" required>
+      <label for="login-passwort">Passwort</label>
+      <input type="password" id="login-passwort" required>
+      <button type="submit" class="knopf">Anmelden</button>
+      <div class="status-meldung" id="login-status"></div>
+    </form>
+  </section>
+
+  <section class="abschnitt" id="admin-bereich" style="display:none;">
+    <div class="admin-kopf">
+      <h2>Admin</h2>
+      <button class="knopf leer" id="logout-knopf">Abmelden</button>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="aktiv" data-tab="produkte">Shop-Produkte</button>
+      <button data-tab="themen">Themen</button>
+      <button data-tab="blog">Aktuelles</button>
+    </div>
+
+    <!-- ===================== SHOP-PRODUKTE ===================== -->
+    <div class="admin-panel aktiv" id="panel-produkte">
+      <div class="admin-formular">
+        <h3 id="produkt-formular-titel">Neues Produkt</h3>
+        <input type="hidden" id="produkt-id">
+        <label for="produkt-name">Name</label>
+        <input type="text" id="produkt-name" required>
+        <label for="produkt-beschreibung">Beschreibung</label>
+        <textarea id="produkt-beschreibung"></textarea>
+        <label for="produkt-preis">Preis (€)</label>
+        <input type="number" id="produkt-preis" step="0.01" min="0" required>
+        <label for="produkt-bild">Bild</label>
+        <input type="file" id="produkt-bild" accept="image/*">
+        <label for="produkt-reihenfolge">Reihenfolge (kleinere Zahl zuerst)</label>
+        <input type="number" id="produkt-reihenfolge" value="0">
+        <div class="feld-checkbox">
+          <input type="checkbox" id="produkt-aktiv" checked>
+          <label for="produkt-aktiv" style="margin:0;">Im Shop sichtbar</label>
+        </div>
+        <div class="knopf-zeile">
+          <button class="knopf" id="produkt-speichern">Speichern</button>
+          <button class="knopf leer" id="produkt-abbrechen" style="display:none;">Abbrechen</button>
+        </div>
+        <div class="status-meldung" id="produkt-status"></div>
+      </div>
+      <ul class="admin-liste" id="produkt-liste"></ul>
+    </div>
+
+    <!-- ===================== THEMEN ===================== -->
+    <div class="admin-panel" id="panel-themen">
+      <div class="admin-formular">
+        <h3 id="hauptpunkt-formular-titel">Neuer Hauptpunkt</h3>
+        <input type="hidden" id="hauptpunkt-id">
+        <label for="hauptpunkt-titel">Titel (z. B. „Wirtschaft &amp; Finanzen")</label>
+        <input type="text" id="hauptpunkt-titel" required>
+        <label for="hauptpunkt-slug">Slug (für die URL, z. B. „wirtschaft-finanzen")</label>
+        <input type="text" id="hauptpunkt-slug" required>
+        <label for="hauptpunkt-kurztext">Kurztext (auf der Themen-Übersicht)</label>
+        <textarea id="hauptpunkt-kurztext"></textarea>
+        <label for="hauptpunkt-bild">Bild</label>
+        <input type="file" id="hauptpunkt-bild" accept="image/*">
+        <label for="hauptpunkt-reihenfolge">Reihenfolge</label>
+        <input type="number" id="hauptpunkt-reihenfolge" value="0">
+        <div class="feld-checkbox">
+          <input type="checkbox" id="hauptpunkt-veroeffentlicht" checked>
+          <label for="hauptpunkt-veroeffentlicht" style="margin:0;">Veröffentlicht</label>
+        </div>
+        <div class="knopf-zeile">
+          <button class="knopf" id="hauptpunkt-speichern">Speichern</button>
+          <button class="knopf leer" id="hauptpunkt-abbrechen" style="display:none;">Abbrechen</button>
+        </div>
+        <div class="status-meldung" id="hauptpunkt-status"></div>
+      </div>
+      <ul class="admin-liste" id="hauptpunkt-liste"></ul>
+    </div>
+
+    <!-- ===================== AKTUELLES / BLOG ===================== -->
+    <div class="admin-panel" id="panel-blog">
+      <div class="admin-formular">
+        <h3 id="beitrag-formular-titel">Neuer Beitrag</h3>
+        <input type="hidden" id="beitrag-id">
+        <label for="beitrag-titel">Titel</label>
+        <input type="text" id="beitrag-titel" required>
+        <label for="beitrag-slug">Slug (für die URL)</label>
+        <input type="text" id="beitrag-slug" required>
+        <label for="beitrag-datum">Datum</label>
+        <input type="text" id="beitrag-datum" placeholder="JJJJ-MM-TT" required>
+        <label for="beitrag-teaser">Teaser (kurze Anreißer-Zeile)</label>
+        <textarea id="beitrag-teaser"></textarea>
+        <label for="beitrag-inhalt">Inhalt (Absätze durch eine Leerzeile trennen)</label>
+        <textarea id="beitrag-inhalt" style="min-height:220px;"></textarea>
+        <label for="beitrag-bild">Bild</label>
+        <input type="file" id="beitrag-bild" accept="image/*">
+        <div class="feld-checkbox">
+          <input type="checkbox" id="beitrag-veroeffentlicht" checked>
+          <label for="beitrag-veroeffentlicht" style="margin:0;">Veröffentlicht</label>
+        </div>
+        <div class="knopf-zeile">
+          <button class="knopf" id="beitrag-speichern">Speichern</button>
+          <button class="knopf leer" id="beitrag-abbrechen" style="display:none;">Abbrechen</button>
+        </div>
+        <div class="status-meldung" id="beitrag-status"></div>
+      </div>
+      <ul class="admin-liste" id="beitrag-admin-liste"></ul>
+    </div>
+  </section>
+</main>
+
+<footer class="fuss">
+  <div class="container">
+    <div class="fuss-zeile">
+      <span>© 2026 TMP — Tommy Möller Partei</span>
+      <span>Erkner, Brandenburg</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---------- Hilfsfunktionen ---------- */
+function escapeHtml(text){
+  const div = document.createElement("div");
+  div.textContent = text || "";
+  return div.innerHTML;
+}
+
+function slugify(text){
+  return (text || "").toLowerCase()
+    .replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss")
+    .replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"");
+}
+
+async function bildHochladen(dateiInput, ordner){
+  const datei = dateiInput.files[0];
+  if (!datei) return null;
+  const pfad = `${ordner}/${Date.now()}-${datei.name.replace(/[^a-zA-Z0-9.\-_]/g,"_")}`;
+  const { error } = await tmpSupabase.storage.from("bilder").upload(pfad, datei, { upsert: true });
+  if (error){
+    console.error(error);
+    throw new Error("Bild-Upload fehlgeschlagen: " + error.message);
+  }
+  return pfad;
+}
+
+/* ---------- Login / Session ---------- */
+const loginFormular = document.getElementById("login-formular");
+const loginBereich = document.getElementById("login-bereich");
+const adminBereich = document.getElementById("admin-bereich");
+
+async function sessionPruefen(){
+  const { data } = await tmpSupabase.auth.getSession();
+  if (data.session){
+    loginBereich.style.display = "none";
+    adminBereich.style.display = "block";
+    alleListenLaden();
+  } else {
+    loginBereich.style.display = "block";
+    adminBereich.style.display = "none";
+  }
+}
+
+loginFormular.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const status = document.getElementById("login-status");
+  status.textContent = "Anmeldung läuft …";
+  status.className = "status-meldung";
+
+  const email = document.getElementById("login-email").value.trim();
+  const passwort = document.getElementById("login-passwort").value;
+
+  const { error } = await tmpSupabase.auth.signInWithPassword({ email, password: passwort });
+
+  if (error){
+    status.textContent = "Anmeldung fehlgeschlagen: " + error.message;
+    status.className = "status-meldung fehler";
+    return;
+  }
+
+  status.textContent = "";
+  sessionPruefen();
+});
+
+document.getElementById("logout-knopf").addEventListener("click", async () => {
+  await tmpSupabase.auth.signOut();
+  sessionPruefen();
+});
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll(".admin-tabs button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".admin-tabs button").forEach(b => b.classList.remove("aktiv"));
+    document.querySelectorAll(".admin-panel").forEach(p => p.classList.remove("aktiv"));
+    btn.classList.add("aktiv");
+    document.getElementById("panel-" + btn.dataset.tab).classList.add("aktiv");
+  });
+});
+
+function alleListenLaden(){
+  produkteAdminLaden();
+  hauptpunkteAdminLaden();
+  beitraegeAdminLaden();
+}
+
+/* ================= SHOP-PRODUKTE ================= */
+async function produkteAdminLaden(){
+  const liste = document.getElementById("produkt-liste");
+  const { data, error } = await tmpSupabase.from("shop_produkte").select("*").order("reihenfolge");
+  if (error){ liste.innerHTML = "<li>Fehler beim Laden.</li>"; return; }
+
+  liste.innerHTML = (data || []).map(p => `
+    <li class="admin-eintrag">
+      ${p.bild_url ? `<img src="${tmpBildUrl(p.bild_url)}" alt="">` : ""}
+      <div class="details">
+        <strong>${escapeHtml(p.name)} ${p.aktiv ? "" : "(ausgeblendet)"}</strong>
+        <span>${Number(p.preis).toFixed(2)} € · Reihenfolge ${p.reihenfolge}</span>
+      </div>
+      <div class="aktionen">
+        <button onclick="produktBearbeiten('${p.id}')">Bearbeiten</button>
+        <button class="loeschen" onclick="produktLoeschen('${p.id}')">Löschen</button>
+      </div>
+    </li>
+  `).join("") || "<li>Noch keine Produkte angelegt.</li>";
+}
+
+let produktCache = [];
+async function produktBearbeiten(id){
+  const { data } = await tmpSupabase.from("shop_produkte").select("*").eq("id", id).single();
+  if (!data) return;
+  document.getElementById("produkt-formular-titel").textContent = "Produkt bearbeiten";
+  document.getElementById("produkt-id").value = data.id;
+  document.getElementById("produkt-name").value = data.name;
+  document.getElementById("produkt-beschreibung").value = data.beschreibung || "";
+  document.getElementById("produkt-preis").value = data.preis;
+  document.getElementById("produkt-reihenfolge").value = data.reihenfolge;
+  document.getElementById("produkt-aktiv").checked = data.aktiv;
+  document.getElementById("produkt-abbrechen").style.display = "inline-block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.getElementById("produkt-abbrechen").addEventListener("click", () => produktFormularZuruecksetzen());
+
+function produktFormularZuruecksetzen(){
+  document.getElementById("produkt-formular-titel").textContent = "Neues Produkt";
+  document.getElementById("produkt-id").value = "";
+  document.getElementById("produkt-name").value = "";
+  document.getElementById("produkt-beschreibung").value = "";
+  document.getElementById("produkt-preis").value = "";
+  document.getElementById("produkt-bild").value = "";
+  document.getElementById("produkt-reihenfolge").value = "0";
+  document.getElementById("produkt-aktiv").checked = true;
+  document.getElementById("produkt-abbrechen").style.display = "none";
+}
+
+document.getElementById("produkt-speichern").addEventListener("click", async (e) => {
+  e.preventDefault();
+  const status = document.getElementById("produkt-status");
+  status.textContent = "Speichern …";
+  status.className = "status-meldung";
+
+  try {
+    const id = document.getElementById("produkt-id").value;
+    const eintrag = {
+      name: document.getElementById("produkt-name").value.trim(),
+      beschreibung: document.getElementById("produkt-beschreibung").value.trim(),
+      preis: parseFloat(document.getElementById("produkt-preis").value) || 0,
+      reihenfolge: parseInt(document.getElementById("produkt-reihenfolge").value) || 0,
+      aktiv: document.getElementById("produkt-aktiv").checked
+    };
+
+    const bildPfad = await bildHochladen(document.getElementById("produkt-bild"), "produkte");
+    if (bildPfad) eintrag.bild_url = bildPfad;
+
+    let fehler;
+    if (id){
+      ({ error: fehler } = await tmpSupabase.from("shop_produkte").update(eintrag).eq("id", id));
+    } else {
+      ({ error: fehler } = await tmpSupabase.from("shop_produkte").insert(eintrag));
+    }
+    if (fehler) throw fehler;
+
+    status.textContent = "Gespeichert.";
+    status.className = "status-meldung erfolg";
+    produktFormularZuruecksetzen();
+    produkteAdminLaden();
+  } catch (err){
+    status.textContent = "Fehler: " + err.message;
+    status.className = "status-meldung fehler";
+  }
+});
+
+async function produktLoeschen(id){
+  if (!confirm("Dieses Produkt wirklich löschen?")) return;
+  await tmpSupabase.from("shop_produkte").delete().eq("id", id);
+  produkteAdminLaden();
+}
+
+/* ================= THEMEN: HAUPTPUNKTE ================= */
+async function hauptpunkteAdminLaden(){
+  const liste = document.getElementById("hauptpunkt-liste");
+  const { data, error } = await tmpSupabase.from("themen_hauptpunkte").select("*").order("reihenfolge");
+  if (error){ liste.innerHTML = "<li>Fehler beim Laden.</li>"; return; }
+
+  liste.innerHTML = (data || []).map(h => `
+    <li class="admin-eintrag" style="flex-direction:column;align-items:stretch;">
+      <div style="display:flex;gap:16px;align-items:flex-start;">
+        ${h.bild_url ? `<img src="${tmpBildUrl(h.bild_url)}" alt="">` : ""}
+        <div class="details">
+          <strong>${escapeHtml(h.titel)} ${h.veroeffentlicht ? "" : "(unveröffentlicht)"}</strong>
+          <span>/thema.html?slug=${escapeHtml(h.slug)}</span>
+        </div>
+        <div class="aktionen">
+          <button onclick="hauptpunktBearbeiten('${h.id}')">Bearbeiten</button>
+          <button class="loeschen" onclick="hauptpunktLoeschen('${h.id}')">Löschen</button>
+        </div>
+      </div>
+      <div class="admin-unterliste" id="artikel-liste-${h.id}">
+        <p class="lade-hinweis">Artikel werden geladen …</p>
+      </div>
+      <div class="admin-formular" style="margin-top:14px;">
+        <h3 style="font-size:16px;">Artikel zu „${escapeHtml(h.titel)}" hinzufügen</h3>
+        <input type="hidden" class="artikel-hauptpunkt-id" value="${h.id}">
+        <input type="hidden" class="artikel-id">
+        <label>Titel</label>
+        <input type="text" class="artikel-titel">
+        <label>Inhalt (Absätze durch Leerzeile trennen)</label>
+        <textarea class="artikel-inhalt" style="min-height:140px;"></textarea>
+        <label>Bild</label>
+        <input type="file" class="artikel-bild" accept="image/*">
+        <label>Reihenfolge</label>
+        <input type="number" class="artikel-reihenfolge" value="0">
+        <div class="knopf-zeile">
+          <button class="knopf artikel-speichern">Artikel speichern</button>
+          <button class="knopf leer artikel-abbrechen" style="display:none;">Abbrechen</button>
+        </div>
+        <div class="status-meldung artikel-status"></div>
+      </div>
+    </li>
+  `).join("") || "<li>Noch keine Hauptpunkte angelegt.</li>";
+
+  (data || []).forEach(h => artikelAdminLaden(h.id));
+}
+
+async function artikelAdminLaden(hauptpunktId){
+  const ziel = document.getElementById("artikel-liste-" + hauptpunktId);
+  const { data, error } = await tmpSupabase.from("themen_artikel")
+    .select("*").eq("hauptpunkt_id", hauptpunktId).order("reihenfolge");
+
+  if (error){ ziel.innerHTML = "Fehler beim Laden der Artikel."; return; }
+
+  if (!data || data.length === 0){
+    ziel.innerHTML = '<p class="lade-hinweis">Noch keine Artikel zu diesem Thema.</p>';
+  } else {
+    ziel.innerHTML = data.map(a => `
+      <div class="admin-eintrag">
+        ${a.bild_url ? `<img src="${tmpBildUrl(a.bild_url)}" alt="">` : ""}
+        <div class="details">
+          <strong>${escapeHtml(a.titel)} ${a.veroeffentlicht ? "" : "(unveröffentlicht)"}</strong>
+        </div>
+        <div class="aktionen">
+          <button onclick="artikelBearbeiten('${hauptpunktId}', '${a.id}')">Bearbeiten</button>
+          <button class="loeschen" onclick="artikelLoeschen('${a.id}', '${hauptpunktId}')">Löschen</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  const formular = document.querySelector(`#artikel-liste-${hauptpunktId}`).closest("li").querySelector(".admin-formular");
+  formular.querySelector(".artikel-speichern").onclick = async (e) => {
+    e.preventDefault();
+    const status = formular.querySelector(".artikel-status");
+    status.textContent = "Speichern …";
+    status.className = "status-meldung artikel-status";
+    try {
+      const artikelId = formular.querySelector(".artikel-id").value;
+      const eintrag = {
+        hauptpunkt_id: hauptpunktId,
+        titel: formular.querySelector(".artikel-titel").value.trim(),
+        inhalt: formular.querySelector(".artikel-inhalt").value.trim(),
+        reihenfolge: parseInt(formular.querySelector(".artikel-reihenfolge").value) || 0,
+        veroeffentlicht: true
+      };
+      const bildPfad = await bildHochladen(formular.querySelector(".artikel-bild"), "artikel");
+      if (bildPfad) eintrag.bild_url = bildPfad;
+
+      let fehler;
+      if (artikelId){
+        ({ error: fehler } = await tmpSupabase.from("themen_artikel").update(eintrag).eq("id", artikelId));
+      } else {
+        ({ error: fehler } = await tmpSupabase.from("themen_artikel").insert(eintrag));
+      }
+      if (fehler) throw fehler;
+
+      status.textContent = "Gespeichert.";
+      status.className = "status-meldung erfolg";
+      formular.querySelector(".artikel-id").value = "";
+      formular.querySelector(".artikel-titel").value = "";
+      formular.querySelector(".artikel-inhalt").value = "";
+      formular.querySelector(".artikel-bild").value = "";
+      formular.querySelector(".artikel-reihenfolge").value = "0";
+      formular.querySelector(".artikel-abbrechen").style.display = "none";
+      artikelAdminLaden(hauptpunktId);
+    } catch (err){
+      status.textContent = "Fehler: " + err.message;
+      status.className = "status-meldung fehler";
+    }
+  };
+
+  formular.querySelector(".artikel-abbrechen").onclick = () => {
+    formular.querySelector(".artikel-id").value = "";
+    formular.querySelector(".artikel-titel").value = "";
+    formular.querySelector(".artikel-inhalt").value = "";
+    formular.querySelector(".artikel-bild").value = "";
+    formular.querySelector(".artikel-abbrechen").style.display = "none";
+  };
+}
+
+async function artikelBearbeiten(hauptpunktId, artikelId){
+  const { data } = await tmpSupabase.from("themen_artikel").select("*").eq("id", artikelId).single();
+  if (!data) return;
+  const formular = document.querySelector(`#artikel-liste-${hauptpunktId}`).closest("li").querySelector(".admin-formular");
+  formular.querySelector(".artikel-id").value = data.id;
+  formular.querySelector(".artikel-titel").value = data.titel;
+  formular.querySelector(".artikel-inhalt").value = data.inhalt || "";
+  formular.querySelector(".artikel-reihenfolge").value = data.reihenfolge;
+  formular.querySelector(".artikel-abbrechen").style.display = "inline-block";
+  formular.scrollIntoView({ behavior: "smooth" });
+}
+
+async function artikelLoeschen(artikelId, hauptpunktId){
+  if (!confirm("Diesen Artikel wirklich löschen?")) return;
+  await tmpSupabase.from("themen_artikel").delete().eq("id", artikelId);
+  artikelAdminLaden(hauptpunktId);
+}
+
+function hauptpunktFormularZuruecksetzen(){
+  document.getElementById("hauptpunkt-formular-titel").textContent = "Neuer Hauptpunkt";
+  document.getElementById("hauptpunkt-id").value = "";
+  document.getElementById("hauptpunkt-titel").value = "";
+  document.getElementById("hauptpunkt-slug").value = "";
+  document.getElementById("hauptpunkt-kurztext").value = "";
+  document.getElementById("hauptpunkt-bild").value = "";
+  document.getElementById("hauptpunkt-reihenfolge").value = "0";
+  document.getElementById("hauptpunkt-veroeffentlicht").checked = true;
+  document.getElementById("hauptpunkt-abbrechen").style.display = "none";
+}
+
+document.getElementById("hauptpunkt-titel").addEventListener("input", (e) => {
+  if (!document.getElementById("hauptpunkt-id").value){
+    document.getElementById("hauptpunkt-slug").value = slugify(e.target.value);
+  }
+});
+
+async function hauptpunktBearbeiten(id){
+  const { data } = await tmpSupabase.from("themen_hauptpunkte").select("*").eq("id", id).single();
+  if (!data) return;
+  document.getElementById("hauptpunkt-formular-titel").textContent = "Hauptpunkt bearbeiten";
+  document.getElementById("hauptpunkt-id").value = data.id;
+  document.getElementById("hauptpunkt-titel").value = data.titel;
+  document.getElementById("hauptpunkt-slug").value = data.slug;
+  document.getElementById("hauptpunkt-kurztext").value = data.kurztext || "";
+  document.getElementById("hauptpunkt-reihenfolge").value = data.reihenfolge;
+  document.getElementById("hauptpunkt-veroeffentlicht").checked = data.veroeffentlicht;
+  document.getElementById("hauptpunkt-abbrechen").style.display = "inline-block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.getElementById("hauptpunkt-abbrechen").addEventListener("click", hauptpunktFormularZuruecksetzen);
+
+document.getElementById("hauptpunkt-speichern").addEventListener("click", async (e) => {
+  e.preventDefault();
+  const status = document.getElementById("hauptpunkt-status");
+  status.textContent = "Speichern …";
+  status.className = "status-meldung";
+
+  try {
+    const id = document.getElementById("hauptpunkt-id").value;
+    const eintrag = {
+      titel: document.getElementById("hauptpunkt-titel").value.trim(),
+      slug: document.getElementById("hauptpunkt-slug").value.trim(),
+      kurztext: document.getElementById("hauptpunkt-kurztext").value.trim(),
+      reihenfolge: parseInt(document.getElementById("hauptpunkt-reihenfolge").value) || 0,
+      veroeffentlicht: document.getElementById("hauptpunkt-veroeffentlicht").checked
+    };
+
+    const bildPfad = await bildHochladen(document.getElementById("hauptpunkt-bild"), "themen");
+    if (bildPfad) eintrag.bild_url = bildPfad;
+
+    let fehler;
+    if (id){
+      ({ error: fehler } = await tmpSupabase.from("themen_hauptpunkte").update(eintrag).eq("id", id));
+    } else {
+      ({ error: fehler } = await tmpSupabase.from("themen_hauptpunkte").insert(eintrag));
+    }
+    if (fehler) throw fehler;
+
+    status.textContent = "Gespeichert.";
+    status.className = "status-meldung erfolg";
+    hauptpunktFormularZuruecksetzen();
+    hauptpunkteAdminLaden();
+  } catch (err){
+    status.textContent = "Fehler: " + err.message;
+    status.className = "status-meldung fehler";
+  }
+});
+
+async function hauptpunktLoeschen(id){
+  if (!confirm("Diesen Hauptpunkt und ALLE zugehörigen Artikel wirklich löschen?")) return;
+  await tmpSupabase.from("themen_hauptpunkte").delete().eq("id", id);
+  hauptpunkteAdminLaden();
+}
+
+/* ================= AKTUELLES / BLOG ================= */
+document.getElementById("beitrag-titel").addEventListener("input", (e) => {
+  if (!document.getElementById("beitrag-id").value){
+    document.getElementById("beitrag-slug").value = slugify(e.target.value);
+  }
+});
+
+async function beitraegeAdminLaden(){
+  const liste = document.getElementById("beitrag-admin-liste");
+  const { data, error } = await tmpSupabase.from("blog_beitraege").select("*").order("datum", { ascending: false });
+  if (error){ liste.innerHTML = "<li>Fehler beim Laden.</li>"; return; }
+
+  liste.innerHTML = (data || []).map(b => `
+    <li class="admin-eintrag">
+      ${b.bild_url ? `<img src="${tmpBildUrl(b.bild_url)}" alt="">` : ""}
+      <div class="details">
+        <strong>${escapeHtml(b.titel)} ${b.veroeffentlicht ? "" : "(unveröffentlicht)"}</strong>
+        <span>${b.datum}</span>
+      </div>
+      <div class="aktionen">
+        <button onclick="beitragBearbeiten('${b.id}')">Bearbeiten</button>
+        <button class="loeschen" onclick="beitragLoeschen('${b.id}')">Löschen</button>
+      </div>
+    </li>
+  `).join("") || "<li>Noch keine Beiträge angelegt.</li>";
+}
+
+function beitragFormularZuruecksetzen(){
+  document.getElementById("beitrag-formular-titel").textContent = "Neuer Beitrag";
+  document.getElementById("beitrag-id").value = "";
+  document.getElementById("beitrag-titel").value = "";
+  document.getElementById("beitrag-slug").value = "";
+  document.getElementById("beitrag-datum").value = "";
+  document.getElementById("beitrag-teaser").value = "";
+  document.getElementById("beitrag-inhalt").value = "";
+  document.getElementById("beitrag-bild").value = "";
+  document.getElementById("beitrag-veroeffentlicht").checked = true;
+  document.getElementById("beitrag-abbrechen").style.display = "none";
+}
+
+async function beitragBearbeiten(id){
+  const { data } = await tmpSupabase.from("blog_beitraege").select("*").eq("id", id).single();
+  if (!data) return;
+  document.getElementById("beitrag-formular-titel").textContent = "Beitrag bearbeiten";
+  document.getElementById("beitrag-id").value = data.id;
+  document.getElementById("beitrag-titel").value = data.titel;
+  document.getElementById("beitrag-slug").value = data.slug;
+  document.getElementById("beitrag-datum").value = data.datum;
+  document.getElementById("beitrag-teaser").value = data.teaser || "";
+  document.getElementById("beitrag-inhalt").value = data.inhalt || "";
+  document.getElementById("beitrag-veroeffentlicht").checked = data.veroeffentlicht;
+  document.getElementById("beitrag-abbrechen").style.display = "inline-block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.getElementById("beitrag-abbrechen").addEventListener("click", beitragFormularZuruecksetzen);
+
+document.getElementById("beitrag-speichern").addEventListener("click", async (e) => {
+  e.preventDefault();
+  const status = document.getElementById("beitrag-status");
+  status.textContent = "Speichern …";
+  status.className = "status-meldung";
+
+  try {
+    const id = document.getElementById("beitrag-id").value;
+    const eintrag = {
+      titel: document.getElementById("beitrag-titel").value.trim(),
+      slug: document.getElementById("beitrag-slug").value.trim(),
+      datum: document.getElementById("beitrag-datum").value.trim(),
+      teaser: document.getElementById("beitrag-teaser").value.trim(),
+      inhalt: document.getElementById("beitrag-inhalt").value.trim(),
+      veroeffentlicht: document.getElementById("beitrag-veroeffentlicht").checked
+    };
+
+    const bildPfad = await bildHochladen(document.getElementById("beitrag-bild"), "blog");
+    if (bildPfad) eintrag.bild_url = bildPfad;
+
+    let fehler;
+    if (id){
+      ({ error: fehler } = await tmpSupabase.from("blog_beitraege").update(eintrag).eq("id", id));
+    } else {
+      ({ error: fehler } = await tmpSupabase.from("blog_beitraege").insert(eintrag));
+    }
+    if (fehler) throw fehler;
+
+    status.textContent = "Gespeichert.";
+    status.className = "status-meldung erfolg";
+    beitragFormularZuruecksetzen();
+    beitraegeAdminLaden();
+  } catch (err){
+    status.textContent = "Fehler: " + err.message;
+    status.className = "status-meldung fehler";
+  }
+});
+
+async function beitragLoeschen(id){
+  if (!confirm("Diesen Beitrag wirklich löschen?")) return;
+  await tmpSupabase.from("blog_beitraege").delete().eq("id", id);
+  beitraegeAdminLaden();
+}
+
+/* ---------- Start ---------- */
+sessionPruefen();
+</script>
+
+</body>
+</html>
