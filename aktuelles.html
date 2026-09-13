@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aktuelles — TMP</title>
+<meta name="description" content="Neuigkeiten rund um die Gründung und Arbeit von TMP.">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+</head>
+<body>
+
+<header class="kopf">
+  <div class="container">
+    <a class="wortmarke" href="index.html"><span class="paragraf">§</span> TMP <small>Tommy Möller Partei</small></a>
+    <nav class="hauptnav" aria-label="Hauptnavigation">
+      <ul>
+        <li><a href="index.html">Start</a></li>
+        <li><a href="ueber-uns.html">Über uns</a></li>
+        <li><a href="themen.html">Themen</a></li>
+        <li><a href="aktuelles.html" aria-current="page">Aktuelles</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="mitglied-werden.html">Mitglied werden</a></li>
+        <li><a href="kontakt.html">Kontakt</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="abschnitt">
+    <h2>Aktuelles</h2>
+    <p>Hier berichten wir über den Aufbau von TMP — von der Gründung bis zu den ersten Schritten im Wahlprogramm.</p>
+
+    <ul class="beitrag-liste" id="beitrag-liste">
+      <li class="lade-hinweis">Beiträge werden geladen …</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="fuss">
+  <div class="container">
+    <div class="fuss-zeile">
+      <span>© 2026 TMP — Tommy Möller Partei</span>
+      <span>Erkner, Brandenburg</span>
+    </div>
+    <nav aria-label="Rechtliches">
+      <ul>
+        <li><a href="impressum.html">Impressum</a></li>
+        <li><a href="datenschutz.html">Datenschutz</a></li>
+        <li class="fuss-admin-link"><a href="admin.html">Admin</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<script>
+function escapeHtml(text){
+  const div = document.createElement("div");
+  div.textContent = text || "";
+  return div.innerHTML;
+}
+
+function formatDatum(datum){
+  if (!datum) return "";
+  const d = new Date(datum + "T00:00:00");
+  return d.toLocaleDateString("de-DE", { year: "numeric", month: "long" });
+}
+
+async function beitraegeLaden(){
+  const liste = document.getElementById("beitrag-liste");
+  const { data, error } = await tmpSupabase
+    .from("blog_beitraege")
+    .select("*")
+    .eq("veroeffentlicht", true)
+    .order("datum", { ascending: false });
+
+  if (error){
+    liste.innerHTML = '<li class="lade-hinweis">Beiträge konnten nicht geladen werden.</li>';
+    console.error(error);
+    return;
+  }
+
+  if (!data || data.length === 0){
+    liste.innerHTML = '<li class="lade-hinweis">Noch keine Beiträge veröffentlicht.</li>';
+    return;
+  }
+
+  liste.innerHTML = data.map(b => `
+    <li class="beitrag-karte">
+      <span class="datum">${formatDatum(b.datum)}</span>
+      <h3><a href="beitrag.html?slug=${encodeURIComponent(b.slug)}">${escapeHtml(b.titel)}</a></h3>
+      <p>${escapeHtml(b.teaser || "")}</p>
+      <a class="weiterlesen" href="beitrag.html?slug=${encodeURIComponent(b.slug)}">Weiterlesen →</a>
+    </li>
+  `).join("");
+}
+
+beitraegeLaden();
+</script>
+
+</body>
+</html>
