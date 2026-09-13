@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop — TMP</title>
+<meta name="description" content="Materialien und Merchandise von TMP.">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+</head>
+<body>
+
+<header class="kopf">
+  <div class="container">
+    <a class="wortmarke" href="index.html"><span class="paragraf">§</span> TMP <small>Tommy Möller Partei</small></a>
+    <nav class="hauptnav" aria-label="Hauptnavigation">
+      <ul>
+        <li><a href="index.html">Start</a></li>
+        <li><a href="ueber-uns.html">Über uns</a></li>
+        <li><a href="themen.html">Themen</a></li>
+        <li><a href="aktuelles.html">Aktuelles</a></li>
+        <li><a href="shop.html" aria-current="page">Shop</a></li>
+        <li><a href="mitglied-werden.html">Mitglied werden</a></li>
+        <li><a href="kontakt.html">Kontakt</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="abschnitt">
+    <h2>Shop</h2>
+    <p>Zeig, dass du dabei bist. Lege Artikel in den Warenkorb und schicke uns deine Bestellung — wir melden uns per E-Mail, sobald sie bei uns eingegangen ist.</p>
+
+    <div id="produkt-grid" class="produkt-grid">
+      <p class="lade-hinweis">Produkte werden geladen …</p>
+    </div>
+
+    <div class="warenkorb" id="warenkorb" style="display:none;">
+      <h3>Dein Warenkorb</h3>
+      <ul class="warenkorb-liste" id="warenkorb-liste"></ul>
+      <div class="warenkorb-summe">
+        <span>Gesamtsumme</span>
+        <span id="warenkorb-summe">0,00 €</span>
+      </div>
+
+      <form class="bestellformular" id="bestellformular">
+        <label for="bf-name">Dein Name</label>
+        <input type="text" id="bf-name" required>
+
+        <label for="bf-email">Deine E-Mail-Adresse (für Rückfragen)</label>
+        <input type="email" id="bf-email" required>
+
+        <button type="submit" class="knopf">Bestellung absenden</button>
+        <div class="status-meldung" id="bf-status"></div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="fuss">
+  <div class="container">
+    <div class="fuss-zeile">
+      <span>© 2026 TMP — Tommy Möller Partei</span>
+      <span>Erkner, Brandenburg</span>
+    </div>
+    <nav aria-label="Rechtliches">
+      <ul>
+        <li><a href="impressum.html">Impressum</a></li>
+        <li><a href="datenschutz.html">Datenschutz</a></li>
+        <li class="fuss-admin-link"><a href="admin.html">Admin</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<script>
+let produkte = [];
+let warenkorb = {}; // { produkt_id: menge }
+
+async function produkteLaden(){
+  const grid = document.getElementById("produkt-grid");
+  const { data, error } = await tmpSupabase
+    .from("shop_produkte")
+    .select("*")
+    .eq("aktiv", true)
+    .order("reihenfolge", { ascending: true });
+
+  if (error){
+    grid.innerHTML = '<p class="lade-hinweis">Produkte konnten nicht geladen werden. Bitte später erneut versuchen.</p>';
+    console.error(error);
+    return;
+  }
+
+  produkte = data || [];
+
+  if (produkte.length === 0){
+    grid.innerHTML = '<p class="lade-hinweis">Aktuell sind keine Produkte verfügbar.</p>';
+    return;
+  }
+
+  grid.innerHTML = produkte.map(p => `
+    <article class="produkt-karte">
+      <div class="produkt-bild">
+        ${p.bild_url ? `<img src="${tmpBildUrl(p.bild_url)}" alt="${escapeHtml(p.name)}">` : "Foto folgt"}
+      </div>
+      <div class="produkt-info">
+        <h3>${escapeHtml(p.name)}</h3>
+        <p class="preis">${formatPreis(p.preis)}</p>
+        <p class="beschreibung">${escapeHtml(p.beschreibung || "")}</p>
+        <div class="mengen-zeile">
+          <label for="menge-${p.id}">Menge</label>
+          <input type="number" id="menge-${p.id}" min="1" value="1">
+        </div>
+        <a class="knopf" href="#" onclick="inDenWarenkorb('${p.id}'); return false;">In den Warenkorb</a>
+      </div>
+    </article>
+  `).join("");
+}
+
+function formatPreis(preis){
+  return Number(preis).toLocaleString("de-DE", { style: "currency", currency: "EUR" });
+}
+
+function escapeHtml(text){
+  const div = document.createElement("div");
+  div.textContent = text || "";
+  return div.innerHTML;
+}
+
+function inDenWarenkorb(produktId){
+  const mengenFeld = document.getElementById("menge-" + produktId);
+  const menge = Math.max(1, parseInt(mengenFeld.value, 10) || 1);
+  warenkorb[produktId] = (warenkorb[produktId] || 0) + menge;
+  warenkorbAnzeigen();
+}
+
+function ausWarenkorbEntfernen(produktId){
+  delete warenkorb[produktId];
+  warenkorbAnzeigen();
+}
+
+function warenkorbAnzeigen(){
+  const box = document.getElementById("warenkorb");
+  const liste = document.getElementById("warenkorb-liste");
+  const ids = Object.keys(warenkorb);
+
+  if (ids.length === 0){
+    box.style.display = "none";
+    return;
+  }
+
+  box.style.display = "block";
+  let summe = 0;
+
+  liste.innerHTML = ids.map(id => {
+    const produkt = produkte.find(p => p.id === id);
+    if (!produkt) return "";
+    const zeilensumme = produkt.preis * warenkorb[id];
+    summe += zeilensumme;
+    return `<li>
+      <span>${escapeHtml(produkt.name)} × ${warenkorb[id]}</span>
+      <span>${formatPreis(zeilensumme)} <button class="entfernen" onclick="ausWarenkorbEntfernen('${id}')">entfernen</button></span>
+    </li>`;
+  }).join("");
+
+  document.getElementById("warenkorb-summe").textContent = formatPreis(summe);
+}
+
+document.getElementById("bestellformular").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const status = document.getElementById("bf-status");
+  status.textContent = "Bestellung wird gesendet …";
+  status.className = "status-meldung";
+
+  const name = document.getElementById("bf-name").value.trim();
+  const email = document.getElementById("bf-email").value.trim();
+
+  const positionen = Object.keys(warenkorb).map(id => {
+    const produkt = produkte.find(p => p.id === id);
+    return {
+      produkt: produkt.name,
+      menge: warenkorb[id],
+      einzelpreis: produkt.preis,
+      summe: produkt.preis * warenkorb[id]
+    };
+  });
+
+  const gesamtsumme = positionen.reduce((sum, p) => sum + p.summe, 0);
+
+  try {
+    const { error } = await tmpSupabase.functions.invoke("bestellung-senden", {
+      body: { kunde_name: name, kunde_email: email, positionen, gesamtsumme }
+    });
+
+    if (error) throw error;
+
+    status.textContent = "Danke! Deine Bestellung ist eingegangen — wir melden uns per E-Mail.";
+    status.className = "status-meldung erfolg";
+    warenkorb = {};
+    warenkorbAnzeigen();
+    e.target.reset();
+  } catch (err){
+    console.error(err);
+    status.textContent = "Da ist etwas schiefgelaufen. Bitte versuch es gleich noch einmal oder schreib uns direkt eine E-Mail.";
+    status.className = "status-meldung fehler";
+  }
+});
+
+produkteLaden();
+</script>
+
+</body>
+</html>
