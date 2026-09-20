@@ -958,3 +958,35 @@ footer.fuss nav a:hover{
 @media (max-width: 720px){
   .admin-eintrag{ flex-wrap: wrap; }
 }
+
+/* Kennzahlen */
+.kennzahlen-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin: 32px 0;
+}
+
+.kennzahl-karte{
+  border: 1px solid var(--linie);
+  border-top: 4px solid var(--waldmeister);
+  background: var(--papier-dunkel);
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.kennzahl-wert{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  color: var(--waldmeister-dunkel);
+  line-height: 1;
+}
+
+.kennzahl-label{
+  font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+  color: var(--tinte-hell);
+}
