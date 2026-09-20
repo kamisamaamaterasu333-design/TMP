@@ -95,6 +95,8 @@
         <textarea id="hauptpunkt-kurztext"></textarea>
         <label for="hauptpunkt-bild">Bild</label>
         <input type="file" id="hauptpunkt-bild" accept="image/*">
+        <label for="hauptpunkt-dokument">Dokument (PDF, Word, ...) — z. B. das Wahlprogramm-Kapitel</label>
+        <input type="file" id="hauptpunkt-dokument" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
         <label for="hauptpunkt-reihenfolge">Reihenfolge</label>
         <input type="number" id="hauptpunkt-reihenfolge" value="0">
         <div class="feld-checkbox">
@@ -127,6 +129,8 @@
         <textarea id="beitrag-inhalt" style="min-height:220px;"></textarea>
         <label for="beitrag-bild">Bild</label>
         <input type="file" id="beitrag-bild" accept="image/*">
+        <label for="beitrag-dokument">Dokument (PDF, Word, ...)</label>
+        <input type="file" id="beitrag-dokument" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
         <div class="feld-checkbox">
           <input type="checkbox" id="beitrag-veroeffentlicht" checked>
           <label for="beitrag-veroeffentlicht" style="margin:0;">Veröffentlicht</label>
@@ -224,13 +228,21 @@ function slugify(text){
 }
 
 async function bildHochladen(dateiInput, ordner){
+  return dateiHochladen(dateiInput, ordner, "bilder");
+}
+
+async function dokumentHochladen(dateiInput, ordner){
+  return dateiHochladen(dateiInput, ordner, "dokumente");
+}
+
+async function dateiHochladen(dateiInput, ordner, bucket){
   const datei = dateiInput.files[0];
   if (!datei) return null;
   const pfad = `${ordner}/${Date.now()}-${datei.name.replace(/[^a-zA-Z0-9.\-_]/g,"_")}`;
-  const { error } = await tmpSupabase.storage.from("bilder").upload(pfad, datei, { upsert: true });
+  const { error } = await tmpSupabase.storage.from(bucket).upload(pfad, datei, { upsert: true });
   if (error){
     console.error(error);
-    throw new Error("Bild-Upload fehlgeschlagen: " + error.message);
+    throw new Error("Datei-Upload fehlgeschlagen: " + error.message);
   }
   return pfad;
 }
@@ -400,7 +412,7 @@ async function hauptpunkteAdminLaden(){
       <div style="display:flex;gap:16px;align-items:flex-start;">
         ${h.bild_url ? `<img src="${tmpBildUrl(h.bild_url)}" alt="">` : ""}
         <div class="details">
-          <strong>${escapeHtml(h.titel)} ${h.veroeffentlicht ? "" : "(unveröffentlicht)"}</strong>
+          <strong>${escapeHtml(h.titel)} ${h.veroeffentlicht ? "" : "(unveröffentlicht)"} ${h.dokument_url ? "📄" : ""}</strong>
           <span>/thema.html?slug=${escapeHtml(h.slug)}</span>
         </div>
         <div class="aktionen">
@@ -421,6 +433,8 @@ async function hauptpunkteAdminLaden(){
         <textarea class="artikel-inhalt" style="min-height:140px;"></textarea>
         <label>Bild</label>
         <input type="file" class="artikel-bild" accept="image/*">
+        <label>Dokument (PDF, Word, ...)</label>
+        <input type="file" class="artikel-dokument" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
         <label>Reihenfolge</label>
         <input type="number" class="artikel-reihenfolge" value="0">
         <div class="knopf-zeile">
@@ -449,7 +463,7 @@ async function artikelAdminLaden(hauptpunktId){
       <div class="admin-eintrag">
         ${a.bild_url ? `<img src="${tmpBildUrl(a.bild_url)}" alt="">` : ""}
         <div class="details">
-          <strong>${escapeHtml(a.titel)} ${a.veroeffentlicht ? "" : "(unveröffentlicht)"}</strong>
+          <strong>${escapeHtml(a.titel)} ${a.veroeffentlicht ? "" : "(unveröffentlicht)"} ${a.dokument_url ? "📄" : ""}</strong>
         </div>
         <div class="aktionen">
           <button onclick="artikelBearbeiten('${hauptpunktId}', '${a.id}')">Bearbeiten</button>
@@ -477,6 +491,9 @@ async function artikelAdminLaden(hauptpunktId){
       const bildPfad = await bildHochladen(formular.querySelector(".artikel-bild"), "artikel");
       if (bildPfad) eintrag.bild_url = bildPfad;
 
+      const dokumentPfad = await dokumentHochladen(formular.querySelector(".artikel-dokument"), "artikel");
+      if (dokumentPfad) eintrag.dokument_url = dokumentPfad;
+
       let fehler;
       if (artikelId){
         ({ error: fehler } = await tmpSupabase.from("themen_artikel").update(eintrag).eq("id", artikelId));
@@ -491,6 +508,7 @@ async function artikelAdminLaden(hauptpunktId){
       formular.querySelector(".artikel-titel").value = "";
       formular.querySelector(".artikel-inhalt").value = "";
       formular.querySelector(".artikel-bild").value = "";
+      formular.querySelector(".artikel-dokument").value = "";
       formular.querySelector(".artikel-reihenfolge").value = "0";
       formular.querySelector(".artikel-abbrechen").style.display = "none";
       artikelAdminLaden(hauptpunktId);
@@ -505,6 +523,7 @@ async function artikelAdminLaden(hauptpunktId){
     formular.querySelector(".artikel-titel").value = "";
     formular.querySelector(".artikel-inhalt").value = "";
     formular.querySelector(".artikel-bild").value = "";
+      formular.querySelector(".artikel-dokument").value = "";
     formular.querySelector(".artikel-abbrechen").style.display = "none";
   };
 }
@@ -534,6 +553,7 @@ function hauptpunktFormularZuruecksetzen(){
   document.getElementById("hauptpunkt-slug").value = "";
   document.getElementById("hauptpunkt-kurztext").value = "";
   document.getElementById("hauptpunkt-bild").value = "";
+  document.getElementById("hauptpunkt-dokument").value = "";
   document.getElementById("hauptpunkt-reihenfolge").value = "0";
   document.getElementById("hauptpunkt-veroeffentlicht").checked = true;
   document.getElementById("hauptpunkt-abbrechen").style.display = "none";
@@ -580,6 +600,9 @@ document.getElementById("hauptpunkt-speichern").addEventListener("click", async 
     const bildPfad = await bildHochladen(document.getElementById("hauptpunkt-bild"), "themen");
     if (bildPfad) eintrag.bild_url = bildPfad;
 
+    const dokumentPfad = await dokumentHochladen(document.getElementById("hauptpunkt-dokument"), "themen");
+    if (dokumentPfad) eintrag.dokument_url = dokumentPfad;
+
     let fehler;
     if (id){
       ({ error: fehler } = await tmpSupabase.from("themen_hauptpunkte").update(eintrag).eq("id", id));
@@ -620,7 +643,7 @@ async function beitraegeAdminLaden(){
     <li class="admin-eintrag">
       ${b.bild_url ? `<img src="${tmpBildUrl(b.bild_url)}" alt="">` : ""}
       <div class="details">
-        <strong>${escapeHtml(b.titel)} ${b.veroeffentlicht ? "" : "(unveröffentlicht)"}</strong>
+        <strong>${escapeHtml(b.titel)} ${b.veroeffentlicht ? "" : "(unveröffentlicht)"} ${b.dokument_url ? "📄" : ""}</strong>
         <span>${b.datum}</span>
       </div>
       <div class="aktionen">
@@ -640,6 +663,7 @@ function beitragFormularZuruecksetzen(){
   document.getElementById("beitrag-teaser").value = "";
   document.getElementById("beitrag-inhalt").value = "";
   document.getElementById("beitrag-bild").value = "";
+  document.getElementById("beitrag-dokument").value = "";
   document.getElementById("beitrag-veroeffentlicht").checked = true;
   document.getElementById("beitrag-abbrechen").style.display = "none";
 }
@@ -680,6 +704,9 @@ document.getElementById("beitrag-speichern").addEventListener("click", async (e)
 
     const bildPfad = await bildHochladen(document.getElementById("beitrag-bild"), "blog");
     if (bildPfad) eintrag.bild_url = bildPfad;
+
+    const dokumentPfad = await dokumentHochladen(document.getElementById("beitrag-dokument"), "blog");
+    if (dokumentPfad) eintrag.dokument_url = dokumentPfad;
 
     let fehler;
     if (id){
