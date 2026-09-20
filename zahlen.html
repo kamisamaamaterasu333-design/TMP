@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zahlen — TMP</title>
+<meta name="description" content="TMP in Zahlen: Mitgliederanzahl, Frauenquote, Spendeneinnahmen und mehr.">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+</head>
+<body>
+
+<header class="kopf">
+  <div class="container">
+    <a class="wortmarke" href="index.html"><span class="paragraf">§</span> TMP <small>Tommy Möller Partei</small></a>
+    <nav class="hauptnav" aria-label="Hauptnavigation">
+      <ul>
+        <li><a href="index.html">Start</a></li>
+        <li><a href="ueber-uns.html">Über uns</a></li>
+        <li><a href="team.html">Team</a></li>
+        <li><a href="zahlen.html" aria-current="page">Zahlen</a></li>
+        <li><a href="themen.html">Themen</a></li>
+        <li><a href="aktuelles.html">Aktuelles</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="mitglied-werden.html">Mitglied werden</a></li>
+        <li><a href="kontakt.html">Kontakt</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="abschnitt">
+    <h2>Zahlen</h2>
+    <p>TMP steht für Transparenz — auch bei den eigenen Zahlen. Hier ein aktueller Überblick.</p>
+
+    <div id="kennzahlen-grid" class="kennzahlen-grid">
+      <p class="lade-hinweis">Wird geladen …</p>
+    </div>
+  </section>
+</main>
+
+<footer class="fuss">
+  <div class="container">
+    <div class="fuss-zeile">
+      <span>© 2026 TMP — Tommy Möller Partei</span>
+      <span>Erkner, Brandenburg</span>
+    </div>
+    <nav aria-label="Rechtliches">
+      <ul>
+        <li><a href="impressum.html">Impressum</a></li>
+        <li><a href="datenschutz.html">Datenschutz</a></li>
+        <li class="fuss-admin-link"><a href="admin.html">Admin</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<script>
+function escapeHtml(text){
+  const div = document.createElement("div");
+  div.textContent = text || "";
+  return div.innerHTML;
+}
+
+async function kennzahlenLaden(){
+  const grid = document.getElementById("kennzahlen-grid");
+  const { data, error } = await tmpSupabase
+    .from("kennzahlen")
+    .select("*")
+    .eq("veroeffentlicht", true)
+    .order("reihenfolge", { ascending: true });
+
+  if (error){
+    grid.innerHTML = '<p class="lade-hinweis">Konnte nicht geladen werden. Bitte später erneut versuchen.</p>';
+    console.error(error);
+    return;
+  }
+
+  if (!data || data.length === 0){
+    grid.innerHTML = '<p class="lade-hinweis">Noch keine Kennzahlen veröffentlicht.</p>';
+    return;
+  }
+
+  grid.innerHTML = data.map(k => `
+    <div class="kennzahl-karte">
+      <span class="kennzahl-wert">${escapeHtml(k.wert)}</span>
+      <span class="kennzahl-label">${escapeHtml(k.label)}</span>
+    </div>
+  `).join("");
+}
+
+kennzahlenLaden();
+</script>
+
+</body>
+</html>
