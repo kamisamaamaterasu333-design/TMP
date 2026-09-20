@@ -18,6 +18,8 @@
       <ul>
         <li><a href="index.html">Start</a></li>
         <li><a href="themen.html">Themen</a></li>
+        <li><a href="team.html">Team</a></li>
+        <li><a href="zahlen.html">Zahlen</a></li>
         <li><a href="aktuelles.html">Aktuelles</a></li>
         <li><a href="shop.html">Shop</a></li>
       </ul>
@@ -48,6 +50,8 @@
       <button class="aktiv" data-tab="produkte">Shop-Produkte</button>
       <button data-tab="themen">Themen</button>
       <button data-tab="blog">Aktuelles</button>
+      <button data-tab="mitglieder">Mitglieder</button>
+      <button data-tab="kennzahlen">Kennzahlen</button>
     </div>
 
     <!-- ===================== SHOP-PRODUKTE ===================== -->
@@ -134,6 +138,64 @@
         <div class="status-meldung" id="beitrag-status"></div>
       </div>
       <ul class="admin-liste" id="beitrag-admin-liste"></ul>
+    </div>
+
+    <!-- ===================== MITGLIEDER ===================== -->
+    <div class="admin-panel" id="panel-mitglieder">
+      <div class="admin-formular">
+        <h3 id="mitglied-formular-titel">Neues Mitglied</h3>
+        <input type="hidden" id="mitglied-id">
+        <label for="mitglied-name">Name</label>
+        <input type="text" id="mitglied-name" required>
+        <label for="mitglied-slug">Slug (für die URL)</label>
+        <input type="text" id="mitglied-slug" required>
+        <label for="mitglied-funktion">Funktion in der Partei</label>
+        <input type="text" id="mitglied-funktion" placeholder="z. B. Gründer, Schatzmeisterin, Beisitzer">
+        <label for="mitglied-kurztext">Kurztext (zwei Sätze für die Übersicht)</label>
+        <textarea id="mitglied-kurztext"></textarea>
+        <label for="mitglied-lebenslauf">Lebenslauf / Werdegang (Absätze durch Leerzeile trennen)</label>
+        <textarea id="mitglied-lebenslauf" style="min-height:180px;"></textarea>
+        <label for="mitglied-statement">Statement (ein paar Worte zur Partei, als Zitat)</label>
+        <textarea id="mitglied-statement"></textarea>
+        <label for="mitglied-bild">Foto</label>
+        <input type="file" id="mitglied-bild" accept="image/*">
+        <label for="mitglied-reihenfolge">Reihenfolge</label>
+        <input type="number" id="mitglied-reihenfolge" value="0">
+        <div class="feld-checkbox">
+          <input type="checkbox" id="mitglied-veroeffentlicht" checked>
+          <label for="mitglied-veroeffentlicht" style="margin:0;">Veröffentlicht</label>
+        </div>
+        <div class="knopf-zeile">
+          <button class="knopf" id="mitglied-speichern">Speichern</button>
+          <button class="knopf leer" id="mitglied-abbrechen" style="display:none;">Abbrechen</button>
+        </div>
+        <div class="status-meldung" id="mitglied-status"></div>
+      </div>
+      <ul class="admin-liste" id="mitglied-liste"></ul>
+    </div>
+
+    <!-- ===================== KENNZAHLEN ===================== -->
+    <div class="admin-panel" id="panel-kennzahlen">
+      <div class="admin-formular">
+        <h3 id="kennzahl-formular-titel">Neue Kennzahl</h3>
+        <input type="hidden" id="kennzahl-id">
+        <label for="kennzahl-label">Bezeichnung</label>
+        <input type="text" id="kennzahl-label" placeholder="z. B. Mitgliederanzahl">
+        <label for="kennzahl-wert">Wert (frei formatierbar)</label>
+        <input type="text" id="kennzahl-wert" placeholder="z. B. 42 oder 35 % oder 12.480 €">
+        <label for="kennzahl-reihenfolge">Reihenfolge</label>
+        <input type="number" id="kennzahl-reihenfolge" value="0">
+        <div class="feld-checkbox">
+          <input type="checkbox" id="kennzahl-veroeffentlicht" checked>
+          <label for="kennzahl-veroeffentlicht" style="margin:0;">Veröffentlicht</label>
+        </div>
+        <div class="knopf-zeile">
+          <button class="knopf" id="kennzahl-speichern">Speichern</button>
+          <button class="knopf leer" id="kennzahl-abbrechen" style="display:none;">Abbrechen</button>
+        </div>
+        <div class="status-meldung" id="kennzahl-status"></div>
+      </div>
+      <ul class="admin-liste" id="kennzahl-liste"></ul>
     </div>
   </section>
 </main>
@@ -230,6 +292,8 @@ function alleListenLaden(){
   produkteAdminLaden();
   hauptpunkteAdminLaden();
   beitraegeAdminLaden();
+  mitgliederAdminLaden();
+  kennzahlenAdminLaden();
 }
 
 /* ================= SHOP-PRODUKTE ================= */
@@ -639,6 +703,197 @@ async function beitragLoeschen(id){
   if (!confirm("Diesen Beitrag wirklich löschen?")) return;
   await tmpSupabase.from("blog_beitraege").delete().eq("id", id);
   beitraegeAdminLaden();
+}
+
+/* ================= MITGLIEDER ================= */
+document.getElementById("mitglied-name").addEventListener("input", (e) => {
+  if (!document.getElementById("mitglied-id").value){
+    document.getElementById("mitglied-slug").value = slugify(e.target.value);
+  }
+});
+
+async function mitgliederAdminLaden(){
+  const liste = document.getElementById("mitglied-liste");
+  const { data, error } = await tmpSupabase.from("mitglieder_profile").select("*").order("reihenfolge");
+  if (error){ liste.innerHTML = "<li>Fehler beim Laden.</li>"; return; }
+
+  liste.innerHTML = (data || []).map(m => `
+    <li class="admin-eintrag">
+      ${m.bild_url ? `<img src="${tmpBildUrl(m.bild_url)}" alt="">` : ""}
+      <div class="details">
+        <strong>${escapeHtml(m.name)} ${m.veroeffentlicht ? "" : "(unveröffentlicht)"}</strong>
+        <span>${escapeHtml(m.funktion || "")}</span>
+      </div>
+      <div class="aktionen">
+        <button onclick="mitgliedBearbeiten('${m.id}')">Bearbeiten</button>
+        <button class="loeschen" onclick="mitgliedLoeschen('${m.id}')">Löschen</button>
+      </div>
+    </li>
+  `).join("") || "<li>Noch keine Mitglieder angelegt.</li>";
+}
+
+function mitgliedFormularZuruecksetzen(){
+  document.getElementById("mitglied-formular-titel").textContent = "Neues Mitglied";
+  document.getElementById("mitglied-id").value = "";
+  document.getElementById("mitglied-name").value = "";
+  document.getElementById("mitglied-slug").value = "";
+  document.getElementById("mitglied-funktion").value = "";
+  document.getElementById("mitglied-kurztext").value = "";
+  document.getElementById("mitglied-lebenslauf").value = "";
+  document.getElementById("mitglied-statement").value = "";
+  document.getElementById("mitglied-bild").value = "";
+  document.getElementById("mitglied-reihenfolge").value = "0";
+  document.getElementById("mitglied-veroeffentlicht").checked = true;
+  document.getElementById("mitglied-abbrechen").style.display = "none";
+}
+
+async function mitgliedBearbeiten(id){
+  const { data } = await tmpSupabase.from("mitglieder_profile").select("*").eq("id", id).single();
+  if (!data) return;
+  document.getElementById("mitglied-formular-titel").textContent = "Mitglied bearbeiten";
+  document.getElementById("mitglied-id").value = data.id;
+  document.getElementById("mitglied-name").value = data.name;
+  document.getElementById("mitglied-slug").value = data.slug;
+  document.getElementById("mitglied-funktion").value = data.funktion || "";
+  document.getElementById("mitglied-kurztext").value = data.kurztext || "";
+  document.getElementById("mitglied-lebenslauf").value = data.lebenslauf || "";
+  document.getElementById("mitglied-statement").value = data.statement || "";
+  document.getElementById("mitglied-reihenfolge").value = data.reihenfolge;
+  document.getElementById("mitglied-veroeffentlicht").checked = data.veroeffentlicht;
+  document.getElementById("mitglied-abbrechen").style.display = "inline-block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.getElementById("mitglied-abbrechen").addEventListener("click", mitgliedFormularZuruecksetzen);
+
+document.getElementById("mitglied-speichern").addEventListener("click", async (e) => {
+  e.preventDefault();
+  const status = document.getElementById("mitglied-status");
+  status.textContent = "Speichern …";
+  status.className = "status-meldung";
+
+  try {
+    const id = document.getElementById("mitglied-id").value;
+    const eintrag = {
+      name: document.getElementById("mitglied-name").value.trim(),
+      slug: document.getElementById("mitglied-slug").value.trim(),
+      funktion: document.getElementById("mitglied-funktion").value.trim(),
+      kurztext: document.getElementById("mitglied-kurztext").value.trim(),
+      lebenslauf: document.getElementById("mitglied-lebenslauf").value.trim(),
+      statement: document.getElementById("mitglied-statement").value.trim(),
+      reihenfolge: parseInt(document.getElementById("mitglied-reihenfolge").value) || 0,
+      veroeffentlicht: document.getElementById("mitglied-veroeffentlicht").checked
+    };
+
+    const bildPfad = await bildHochladen(document.getElementById("mitglied-bild"), "mitglieder");
+    if (bildPfad) eintrag.bild_url = bildPfad;
+
+    let fehler;
+    if (id){
+      ({ error: fehler } = await tmpSupabase.from("mitglieder_profile").update(eintrag).eq("id", id));
+    } else {
+      ({ error: fehler } = await tmpSupabase.from("mitglieder_profile").insert(eintrag));
+    }
+    if (fehler) throw fehler;
+
+    status.textContent = "Gespeichert.";
+    status.className = "status-meldung erfolg";
+    mitgliedFormularZuruecksetzen();
+    mitgliederAdminLaden();
+  } catch (err){
+    status.textContent = "Fehler: " + err.message;
+    status.className = "status-meldung fehler";
+  }
+});
+
+async function mitgliedLoeschen(id){
+  if (!confirm("Dieses Mitglied wirklich löschen?")) return;
+  await tmpSupabase.from("mitglieder_profile").delete().eq("id", id);
+  mitgliederAdminLaden();
+}
+
+/* ================= KENNZAHLEN ================= */
+async function kennzahlenAdminLaden(){
+  const liste = document.getElementById("kennzahl-liste");
+  const { data, error } = await tmpSupabase.from("kennzahlen").select("*").order("reihenfolge");
+  if (error){ liste.innerHTML = "<li>Fehler beim Laden.</li>"; return; }
+
+  liste.innerHTML = (data || []).map(k => `
+    <li class="admin-eintrag">
+      <div class="details">
+        <strong>${escapeHtml(k.label)} ${k.veroeffentlicht ? "" : "(unveröffentlicht)"}</strong>
+        <span>${escapeHtml(k.wert)}</span>
+      </div>
+      <div class="aktionen">
+        <button onclick="kennzahlBearbeiten('${k.id}')">Bearbeiten</button>
+        <button class="loeschen" onclick="kennzahlLoeschen('${k.id}')">Löschen</button>
+      </div>
+    </li>
+  `).join("") || "<li>Noch keine Kennzahlen angelegt.</li>";
+}
+
+function kennzahlFormularZuruecksetzen(){
+  document.getElementById("kennzahl-formular-titel").textContent = "Neue Kennzahl";
+  document.getElementById("kennzahl-id").value = "";
+  document.getElementById("kennzahl-label").value = "";
+  document.getElementById("kennzahl-wert").value = "";
+  document.getElementById("kennzahl-reihenfolge").value = "0";
+  document.getElementById("kennzahl-veroeffentlicht").checked = true;
+  document.getElementById("kennzahl-abbrechen").style.display = "none";
+}
+
+async function kennzahlBearbeiten(id){
+  const { data } = await tmpSupabase.from("kennzahlen").select("*").eq("id", id).single();
+  if (!data) return;
+  document.getElementById("kennzahl-formular-titel").textContent = "Kennzahl bearbeiten";
+  document.getElementById("kennzahl-id").value = data.id;
+  document.getElementById("kennzahl-label").value = data.label;
+  document.getElementById("kennzahl-wert").value = data.wert;
+  document.getElementById("kennzahl-reihenfolge").value = data.reihenfolge;
+  document.getElementById("kennzahl-veroeffentlicht").checked = data.veroeffentlicht;
+  document.getElementById("kennzahl-abbrechen").style.display = "inline-block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.getElementById("kennzahl-abbrechen").addEventListener("click", kennzahlFormularZuruecksetzen);
+
+document.getElementById("kennzahl-speichern").addEventListener("click", async (e) => {
+  e.preventDefault();
+  const status = document.getElementById("kennzahl-status");
+  status.textContent = "Speichern …";
+  status.className = "status-meldung";
+
+  try {
+    const id = document.getElementById("kennzahl-id").value;
+    const eintrag = {
+      label: document.getElementById("kennzahl-label").value.trim(),
+      wert: document.getElementById("kennzahl-wert").value.trim(),
+      reihenfolge: parseInt(document.getElementById("kennzahl-reihenfolge").value) || 0,
+      veroeffentlicht: document.getElementById("kennzahl-veroeffentlicht").checked
+    };
+
+    let fehler;
+    if (id){
+      ({ error: fehler } = await tmpSupabase.from("kennzahlen").update(eintrag).eq("id", id));
+    } else {
+      ({ error: fehler } = await tmpSupabase.from("kennzahlen").insert(eintrag));
+    }
+    if (fehler) throw fehler;
+
+    status.textContent = "Gespeichert.";
+    status.className = "status-meldung erfolg";
+    kennzahlFormularZuruecksetzen();
+    kennzahlenAdminLaden();
+  } catch (err){
+    status.textContent = "Fehler: " + err.message;
+    status.className = "status-meldung fehler";
+  }
+});
+
+async function kennzahlLoeschen(id){
+  if (!confirm("Diese Kennzahl wirklich löschen?")) return;
+  await tmpSupabase.from("kennzahlen").delete().eq("id", id);
+  kennzahlenAdminLaden();
 }
 
 /* ---------- Start ---------- */
