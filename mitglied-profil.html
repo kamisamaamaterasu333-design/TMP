@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="seiten-titel">Mitglied — TMP</title>
+<meta name="description" content="Vorstellung eines TMP-Mitglieds.">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+</head>
+<body>
+
+<header class="kopf">
+  <div class="container">
+    <a class="wortmarke" href="index.html"><span class="paragraf">§</span> TMP <small>Tommy Möller Partei</small></a>
+    <nav class="hauptnav" aria-label="Hauptnavigation">
+      <ul>
+        <li><a href="index.html">Start</a></li>
+        <li><a href="ueber-uns.html">Über uns</a></li>
+        <li><a href="team.html" aria-current="page">Team</a></li>
+        <li><a href="zahlen.html">Zahlen</a></li>
+        <li><a href="themen.html">Themen</a></li>
+        <li><a href="aktuelles.html">Aktuelles</a></li>
+        <li><a href="shop.html">Shop</a></li>
+        <li><a href="mitglied-werden.html">Mitglied werden</a></li>
+        <li><a href="kontakt.html">Kontakt</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="abschnitt" id="inhalt">
+    <p class="lade-hinweis">Wird geladen …</p>
+  </section>
+</main>
+
+<footer class="fuss">
+  <div class="container">
+    <div class="fuss-zeile">
+      <span>© 2026 TMP — Tommy Möller Partei</span>
+      <span>Erkner, Brandenburg</span>
+    </div>
+    <nav aria-label="Rechtliches">
+      <ul>
+        <li><a href="impressum.html">Impressum</a></li>
+        <li><a href="datenschutz.html">Datenschutz</a></li>
+        <li class="fuss-admin-link"><a href="admin.html">Admin</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<script>
+function escapeHtml(text){
+  const div = document.createElement("div");
+  div.textContent = text || "";
+  return div.innerHTML;
+}
+
+function alsAbsaetze(text){
+  return (text || "").split(/\n\s*\n/).map(p => `<p>${escapeHtml(p)}</p>`).join("");
+}
+
+async function profilLaden(){
+  const params = new URLSearchParams(window.location.search);
+  const slug = params.get("slug");
+  const inhalt = document.getElementById("inhalt");
+
+  if (!slug){
+    inhalt.innerHTML = '<p class="lade-hinweis">Kein Mitglied angegeben.</p>';
+    return;
+  }
+
+  const { data: m, error } = await tmpSupabase
+    .from("mitglieder_profile")
+    .select("*")
+    .eq("slug", slug)
+    .eq("veroeffentlicht", true)
+    .single();
+
+  if (error || !m){
+    inhalt.innerHTML = '<p class="lade-hinweis">Dieses Profil wurde nicht gefunden.</p><a class="zurueck-link" href="team.html">← Zurück zu Team</a>';
+    return;
+  }
+
+  document.getElementById("seiten-titel").textContent = m.name + " — TMP";
+
+  inhalt.innerHTML = `
+    <div class="profil">
+      <div class="profil-marke" aria-hidden="true">
+        ${m.bild_url ? `<img src="${tmpBildUrl(m.bild_url)}" alt="${escapeHtml(m.name)}" style="width:100%;height:100%;object-fit:cover;">` : escapeHtml(m.name.split(" ").map(w => w[0]).join("").slice(0,2))}
+      </div>
+      <div>
+        <h2 style="margin-bottom:4px;">${escapeHtml(m.name)}</h2>
+        ${m.funktion ? `<p style="color:var(--waldmeister-dunkel);font-family:-apple-system,'Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:600;margin:0 0 16px;">${escapeHtml(m.funktion)}</p>` : ""}
+        <div class="inhalt">${alsAbsaetze(m.lebenslauf)}</div>
+      </div>
+    </div>
+    ${m.statement ? `
+      <div class="hinweisfeld" style="font-style:italic;font-size:19px;">
+        <p>„${escapeHtml(m.statement)}"</p>
+      </div>
+    ` : ""}
+    <a class="zurueck-link" href="team.html">← Zurück zu Team</a>
+  `;
+}
+
+profilLaden();
+</script>
+
+</body>
+</html>
