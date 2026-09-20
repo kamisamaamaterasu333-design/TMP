@@ -98,6 +98,7 @@ async function beitragLaden(){
     <h2>${escapeHtml(beitrag.titel)}</h2>
     ${beitrag.bild_url ? `<img src="${tmpBildUrl(beitrag.bild_url)}" alt="${escapeHtml(beitrag.titel)}" style="max-width:100%;height:auto;border:1px solid var(--linie);margin:16px 0 24px;">` : ""}
     ${alsAbsaetze(beitrag.inhalt)}
+    ${beitrag.dokument_url ? `<a class="dokument-link" href="${tmpDokumentUrl(beitrag.dokument_url)}" target="_blank" rel="noopener">📄 Dokument herunterladen</a>` : ""}
     <a class="zurueck-link" href="aktuelles.html">← Zurück zu Aktuelles</a>
   `;
 }
