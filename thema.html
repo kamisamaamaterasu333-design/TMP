@@ -102,6 +102,7 @@ async function themaLaden(){
         <h3>${escapeHtml(a.titel)}</h3>
         ${a.bild_url ? `<img src="${tmpBildUrl(a.bild_url)}" alt="${escapeHtml(a.titel)}">` : ""}
         <div class="inhalt">${alsAbsaetze(a.inhalt)}</div>
+        ${a.dokument_url ? `<a class="dokument-link" href="${tmpDokumentUrl(a.dokument_url)}" target="_blank" rel="noopener">📄 Dokument herunterladen</a>` : ""}
       </article>
     `).join("");
   }
@@ -110,6 +111,7 @@ async function themaLaden(){
     <h2>${escapeHtml(hauptpunkt.titel)}</h2>
     <p>${escapeHtml(hauptpunkt.kurztext || "")}</p>
     ${hauptpunkt.bild_url ? `<img src="${tmpBildUrl(hauptpunkt.bild_url)}" alt="${escapeHtml(hauptpunkt.titel)}" style="max-width:100%;height:auto;border:1px solid var(--linie);margin:20px 0;">` : ""}
+    ${hauptpunkt.dokument_url ? `<a class="dokument-link" href="${tmpDokumentUrl(hauptpunkt.dokument_url)}" target="_blank" rel="noopener">📄 Dokument herunterladen</a>` : ""}
     <h3 style="margin-top:36px;">Artikel zu diesem Thema</h3>
     ${artikelHtml}
     <a class="zurueck-link" href="themen.html">← Zurück zu Themen</a>
