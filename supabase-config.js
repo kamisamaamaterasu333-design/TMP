@@ -16,3 +16,10 @@ function tmpBildUrl(pfad) {
   const { data } = tmpSupabase.storage.from("bilder").getPublicUrl(pfad);
   return data.publicUrl;
 }
+
+// Öffentliche URL für hochgeladene Dokumente (PDF, Word, ...) im Bucket "dokumente"
+function tmpDokumentUrl(pfad) {
+  if (!pfad) return "";
+  const { data } = tmpSupabase.storage.from("dokumente").getPublicUrl(pfad);
+  return data.publicUrl;
+}
